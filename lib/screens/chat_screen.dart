@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:contacts_service/contacts_service.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:whatsapp/models/contact.dart';
 import 'package:whatsapp/screens/Actions_chat/Select_Contact.dart';
 
 class Chat extends StatefulWidget {
@@ -17,7 +17,7 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
 
-  List contact ;
+  List contList ;
   var senderNo;
   void getReceiver()async{
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -42,7 +42,7 @@ class _ChatState extends State<Chat> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:path == null ? SizedBox() :   StreamBuilder<QuerySnapshot>(
+      body:path == null && contList == null ? SizedBox() :   StreamBuilder<QuerySnapshot>(
         stream: path,
         builder: (BuildContext context, snapshot){
                        if (!snapshot.hasData) {
@@ -65,38 +65,9 @@ class _ChatState extends State<Chat> {
 
       floatingActionButton: FloatingActionButton(
             backgroundColor: Theme.of(context).primaryColor,
-            onPressed: ()async{
-              final PermissionStatus permissionStatus = await _getPermission();
-              if (permissionStatus == PermissionStatus.granted) {
-                  Iterable<Contact> contacts = await ContactsService.getContacts();
-                  if(contacts == null){
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context){
-                        return CircularProgressIndicator(backgroundColor : Colors.blueAccent);
-                      },
-                      );
-                  }
-                  contact = contacts.toList();
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SelectContact(contacts: contact)));
-                  
-              }
-              else {
-                  //If permissions have been denied show standard cupertino alert dialog
-                 showDialog(
-                 context: context,
-                 builder: (BuildContext context) => CupertinoAlertDialog(
-                    title: Text('Permissions error'),
-                    content: Text('Please enable contacts access '
-                        'permission in system settings'),
-                    actions: <Widget>[
-                      CupertinoDialogAction(
-                        child: Text('OK'),
-                        onPressed: () => Navigator.of(context).pop(),
-                      )
-                    ],
-                  ));
-                }
+            onPressed: (){
+              contList = Provider.of<ContactList>(context).contactList;
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>SelectContact(contacts: contList) ));
              },
             child: 
             Icon(
@@ -109,20 +80,7 @@ class _ChatState extends State<Chat> {
 }
 
 
-  //Check contacts permission
-  Future<PermissionStatus> _getPermission() async {
-    final PermissionStatus permission = await Permission.contacts.status;
-    if (permission != PermissionStatus.granted &&
-        permission != PermissionStatus.denied) {
-      final Map<Permission, PermissionStatus> permissionStatus =
-          await [Permission.contacts].request();
-      return permissionStatus[Permission.contacts] ??
-          PermissionStatus.undetermined;
-    } else {
-      return permission;
-    }
-  }
-
+  
 
 class Recent extends StatelessWidget {
   final String senderNo,msg;
