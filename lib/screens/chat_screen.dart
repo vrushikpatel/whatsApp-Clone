@@ -7,7 +7,6 @@ import 'package:whatsapp/models/contact.dart';
 import 'package:whatsapp/screens/Actions_chat/Select_Contact.dart';
 
 class Chat extends StatefulWidget {
-
    const Chat({
     Key key,
   }) : super(key: key);
@@ -16,13 +15,13 @@ class Chat extends StatefulWidget {
 }
 
 class _ChatState extends State<Chat> {
-
   List contList ;
   var senderNo;
   void getReceiver()async{
     SharedPreferences pref = await SharedPreferences.getInstance();
     senderNo = pref.getString('phone_number');
     setState(() {
+          contList = Provider.of<ContactList>(context).contactList;
           path = FirebaseFirestore.instance.collection('messages').doc('Recent_Chat').collection(senderNo).orderBy('time',descending: true).snapshots();
     });
   }
@@ -66,7 +65,6 @@ class _ChatState extends State<Chat> {
       floatingActionButton: FloatingActionButton(
             backgroundColor: Theme.of(context).primaryColor,
             onPressed: (){
-              contList = Provider.of<ContactList>(context).contactList;
               Navigator.push(context, MaterialPageRoute(builder: (context)=>SelectContact(contacts: contList) ));
              },
             child: 
