@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:whatsapp/models/contact.dart';
 import 'package:whatsapp/screens/camera_screen.dart';
 import 'chat_screen.dart';
 import 'calls_screen.dart';
 import 'status_screen.dart';
-import 'package:whatsapp/models/contact.dart';
 import 'package:provider/provider.dart';
+
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -17,8 +18,11 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
   
   @override
   void initState() {
-    Provider.of<ContactList>(context, listen: false).getContact();
     tabcontroller=TabController(length: 4, vsync: this,initialIndex: 1);
+    Future.delayed(Duration.zero).then((value) {
+      Provider.of<ContactList>(context,listen: false).getContact();
+    });
+   
     super.initState();
   }
 

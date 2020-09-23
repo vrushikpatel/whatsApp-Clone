@@ -5,18 +5,14 @@ import 'package:permission_handler/permission_handler.dart';
 class ContactList extends ChangeNotifier{
 
   List <Contact> contactList = [];
-
-
+  
    Future<void> getContact()async{
-    print('getcontect called');
   final PermissionStatus permissionStatus = await _getPermission();
-  print('inisde permission');
               if (permissionStatus == PermissionStatus.granted) {
                   Iterable<Contact> contacts = await ContactsService.getContacts();
-                    contactList = contacts.toList();
-                    print(contactList);
-                    notifyListeners();
+                    contactList = contacts.toList();                   
               }
+               notifyListeners();
     }
 
     Future<PermissionStatus> _getPermission() async {
@@ -31,6 +27,5 @@ class ContactList extends ChangeNotifier{
       return permission;
     }
   }
-  
 }
 

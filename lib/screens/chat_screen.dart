@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whatsapp/models/contact.dart';
 import 'package:whatsapp/screens/Actions_chat/Select_Contact.dart';
+import 'package:contacts_service/contacts_service.dart';
 
 class Chat extends StatefulWidget {
    const Chat({
@@ -15,13 +16,13 @@ class Chat extends StatefulWidget {
 }
 
 class _ChatState extends State<Chat> {
-  List contList ;
+  ContactList ctn = ContactList();
+  List<Contact> contList ;
   var senderNo;
   void getReceiver()async{
     SharedPreferences pref = await SharedPreferences.getInstance();
     senderNo = pref.getString('phone_number');
     setState(() {
-          contList = Provider.of<ContactList>(context).contactList;
           path = FirebaseFirestore.instance.collection('messages').doc('Recent_Chat').collection(senderNo).orderBy('time',descending: true).snapshots();
     });
   }
@@ -40,8 +41,13 @@ class _ChatState extends State<Chat> {
 
   @override
   Widget build(BuildContext context) {
+    contList = Provider.of<ContactList>(context).contactList;
     return Scaffold(
-      body:path == null && contList == null ? SizedBox() :   StreamBuilder<QuerySnapshot>(
+      body:path == null || contList == null  ? Center(
+                                child : CircularProgressIndicator(
+                                                      backgroundColor : Colors.blueAccent,
+                                          )
+                                ) : StreamBuilder<QuerySnapshot>(
         stream: path,
         builder: (BuildContext context, snapshot){
                        if (!snapshot.hasData) {
@@ -53,19 +59,33 @@ class _ChatState extends State<Chat> {
                         }
                     final  messages = snapshot.data.docs;
                     
+                    
           return ListView.builder(
-            itemCount: messages.length,
+            itemCount:  messages.length,
            itemBuilder: (context , index){
+            //  Contact ctn =returnCtnObj(messages[index].data()['receiver'],contList);
+            // print(contList.length);
+            // Contact ctn ;
+            //  for(int i=0; i<contList.length;i++){
+            //    print(i);
+              // print(contList[i].phones.elementAt(0).value.toString());
+              //  print(messages[index].data()['receiver']);
+              // if(messages[index].data()['receiver'] == (contList[i].phones.elementAt(0).value).toString()){
+              //     print('===================================================================================');
+                  // print(contList[i].displayName);
+                  // ctn = contList[i];
+                  // break;}
+             //}
              return Recent(senderNo: messages[index].data()['receiver'], msg:  messages[index].data()['lastMsg']);
            },
-           );
+          );
         } 
         ),
 
       floatingActionButton: FloatingActionButton(
             backgroundColor: Theme.of(context).primaryColor,
-            onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>SelectContact(contacts: contList) ));
+            onPressed: (){              
+             Navigator.push(context, MaterialPageRoute(builder: (context)=>SelectContact(contacts: contList)));            
              },
             child: 
             Icon(
@@ -78,20 +98,39 @@ class _ChatState extends State<Chat> {
 }
 
 
-  
+
+// Contact returnCtnObj(String number,List<Contact>contactList){
+//     for(int i=0;i<contactList.length;++i){
+//       if(number == contactList[i].phones.elementAt(0).value){
+//          print('===================================================================================');
+//         print(contactList[i].displayName);
+//         return contactList[i]; 
+//       }
+//     }
+//   }
 
 class Recent extends StatelessWidget {
   final String senderNo,msg;
-  Recent({this.senderNo,this.msg});
+  final Contact ctn;
+  Recent({this.senderNo,this.msg,this.ctn});  
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: CircleAvatar(
-      radius : 25.0,
-      backgroundColor: Colors.lightGreenAccent,
-      ),
+      // leading: (ctn.avatar != null && ctn.avatar.isNotEmpty)
+      //                 ? CircleAvatar(
+      //                     radius: 25.0,
+      //                     backgroundImage: MemoryImage(ctn.avatar),
+      //       s            )
+      //                 : CircleAvatar(
+      //                     radius: 25.0,
+      //                     child: Text(ctn.initials()),
+      //                     backgroundColor: Theme.of(context).accentColor,
+      //                   ),
       title: Text(senderNo),
       subtitle: Text(msg),
+      onTap: (){       
+      },
     );
   }
 }
+

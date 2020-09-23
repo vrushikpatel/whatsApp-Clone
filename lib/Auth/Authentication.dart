@@ -28,7 +28,6 @@ class _AuthenticationState extends State<Authentication> {
       var pNo = number.substring(3);
       pref.setString('phone_number', pNo.replaceAll(' ',''));
     }
-
     pref.setString('login', 'true');
     
   }
