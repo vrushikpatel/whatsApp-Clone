@@ -116,16 +116,9 @@ class Recent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      // leading: (ctn.avatar != null && ctn.avatar.isNotEmpty)
-      //                 ? CircleAvatar(
-      //                     radius: 25.0,
-      //                     backgroundImage: MemoryImage(ctn.avatar),
-      //       s            )
-      //                 : CircleAvatar(
-      //                     radius: 25.0,
-      //                     child: Text(ctn.initials()),
-      //                     backgroundColor: Theme.of(context).accentColor,
-      //                   ),
+      leading: CircleAvatar(
+        backgroundColor: Colors.lightGreenAccent,
+      ),             
       title: Text(senderNo),
       subtitle: Text(msg),
       onTap: (){       
